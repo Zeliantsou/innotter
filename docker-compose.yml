@@ -1,0 +1,19 @@
+version: "3.3"
+   
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DJANGO_DATABASE_NAME}
+      - POSTGRES_USER=${DJANGO_DATABASE_USER}
+      - POSTGRES_PASSWORD=${DJANGO_DATABASE_PASSWORD}
+  web:
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

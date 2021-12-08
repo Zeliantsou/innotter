@@ -9,11 +9,11 @@ COPY Pipfile /code/
 
 RUN pip install --upgrade pip
 
-RUN apt install libpq-dev python-dev
-
 RUN pip install pipenv
 
 RUN pipenv install --system --deploy --ignore-pipfile
+
+RUN apt-get install libpq-dev
 
 COPY . /code/
 

@@ -1,7 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.urls import resolve
 
 from user.services.security_service import refresh_tokens
 from user.models import User
@@ -11,7 +10,6 @@ from user.serializers import (
     RetrieveUserSerializer,
     ListUserSerializer,
     LoginSerializer,
-    TokenSerializer
 )
 from user.services.auth_service import login
 
@@ -33,22 +31,14 @@ class UserViewSet(
             'retrieve': RetrieveUserSerializer,
             'list': ListUserSerializer,
             'login_user': LoginSerializer,
-            'refresh_tokens': TokenSerializer
     }
-
-    def create(self, request, *args, **kwargs):
-        print('CREATE', resolve(request.path))
-        return super().create(request, *args, **kwargs)
 
     @action(detail=False, methods=('post',))
     def refresh_tokens(self, request):
-        test_url = resolve(request.path)
-        print(test_url)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        token = request.META.get('HTTP_AUTHORIZATION', b'')
         return Response(
             status=status.HTTP_200_OK,
-            data=refresh_tokens(token=serializer.validated_data.get('token'))
+            data=refresh_tokens(token=token)
         )
 
     @action(detail=False, methods=('post',))

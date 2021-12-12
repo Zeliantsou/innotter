@@ -27,7 +27,8 @@ ALLOWED_URLS = {'users-list': 'POST',
                 'users-login-user': 'POST',
                 'users-refresh-tokens': 'POST',
                 }
-ONLY_ADMIN_URLS = ('admin',)
+
+API_PREFIX = 'api/v1/'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,8 +40,13 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
+    'like',
+    'page',
+    'post',
     'proj',
-    'user'
+    'subscribe_request',
+    'tag',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -100,6 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 LANGUAGE_CODE = 'en-us'
 

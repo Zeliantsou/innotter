@@ -16,20 +16,17 @@ class CustomAuthMiddleware:
 
     def __call__(self, request):
         allowed_urls = settings.ALLOWED_URLS
-        url_name = resolve(request.path).url_name
-        if url_name in allowed_urls and request.method == allowed_urls[url_name]:
+        resolved_path = resolve(request.path)
+        url_name = resolved_path.url_name
+        app_name = resolved_path.app_name
+        if (url_name in allowed_urls and request.method == allowed_urls[url_name]) or app_name == 'admin':
             return self.get_response(request)
-        print(request.META)
-        print(request.META.get('HTTP_AUTHORIZATION', b''))
         token_data = decode_token(request.META.get('HTTP_AUTHORIZATION', b''))
-        print(token_data)
         try:
             user = User.objects.get(id=token_data.get('subject'))
         except User.DoesNotExist:
             raise exceptions.PermissionDenied()
-        # if request.path in settings.ONLY_ADMIN_URLS and user.role != 'admin':
-        #     raise exceptions.PermissionDenied()
-        request.user = user
+        request.custom_user = user
         response = self.get_response(request)
         return response
 

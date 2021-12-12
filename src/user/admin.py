@@ -5,6 +5,7 @@ from user.models import User
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'email',
         'photo_path',
         'title',

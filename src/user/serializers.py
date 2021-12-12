@@ -69,8 +69,3 @@ class LoginSerializer(serializers.Serializer):
     """Serializes user for login"""
     email = serializers.CharField()
     password = serializers.CharField()
-
-
-class TokenSerializer(serializers.Serializer):
-    """Serializers token for refresh token view"""
-    token = serializers.CharField()

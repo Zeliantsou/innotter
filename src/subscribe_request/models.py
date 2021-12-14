@@ -5,14 +5,14 @@ class SubscribeRequest(models.Model):
     initiator = models.ForeignKey(
         'user.User',
         on_delete=models.SET_NULL,
-        related_name='initiator_requests',
+        related_name='subscribe_requests',
         blank=True,
         null=True
     )
-    desired = models.ForeignKey(
-        'user.User',
+    desired_page = models.ForeignKey(
+        'page.Page',
         on_delete=models.SET_NULL,
-        related_name='wanted_requests',
+        related_name='subscribe_requests',
         blank=True,
         null=True
     )

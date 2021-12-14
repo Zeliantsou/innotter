@@ -34,6 +34,8 @@ class UpdatePageSerializer(serializers.ModelSerializer):
             'image',
             'is_private',
         )
+        read_only_fields = ('followers', 'subscriptions')
+
 
     # def get_tags(self, obj):
     #     return TagForPageSerializer(obj.owner.tags.all, many=True).data
@@ -65,6 +67,7 @@ class RetrievePageSerializer(serializers.ModelSerializer):
 
 
 class ListPageSerializer(serializers.ModelSerializer):
+    """Serializes page for list view"""
     owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
 
     class Meta:
@@ -75,3 +78,51 @@ class ListPageSerializer(serializers.ModelSerializer):
             'owner',
             'is_private',
         )
+
+
+class TemporaryBlockDaySerializer(serializers.ModelSerializer):
+    """Serializes unblock date"""
+    block_duration_days = serializers.IntegerField()
+
+    class Meta:
+        model = Page
+        fields = ('block_duration_days', 'unblock_date')
+
+        extra_kwargs = {
+            'block_duration_days': {'write_only': True},
+            'unblock_date': {'read_only': True},
+        }
+
+
+class DeleteFollowerSerializer(serializers.ModelSerializer):
+    """Serializes page for delete follower view"""
+    list_ids_removable_follower = serializers.ListSerializer(
+        child=serializers.IntegerField(),
+        required=False
+    )
+
+    class Meta:
+        model = Page
+        fields = ('id', 'followers', 'list_ids_removable_follower',)
+
+        extra_kwargs = {
+            'followers': {'read_only': True},
+            'list_ids_removable_follower': {'write_only': True},
+        }
+
+
+class DeleteSubscriptionsSerializer(serializers.ModelSerializer):
+    """Serializes page for delete subscriptions view"""
+    list_user_ids_refuse_subscribe = serializers.ListSerializer(
+        child=serializers.IntegerField(),
+        required=False
+    )
+
+    class Meta:
+        model = Page
+        fields = ('id', 'subscriptions', 'list_user_ids_refuse_subscribe',)
+
+        extra_kwargs = {
+            'subscriptions': {'read_only': True},
+            'list_user_ids_refuse_subscribe': {'write_only': True},
+        }

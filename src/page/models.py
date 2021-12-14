@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django.db import models
 
 
 class Page(models.Model):
+    """Page model"""
     name = models.CharField(
         max_length=100,
     )
@@ -45,7 +48,8 @@ class Page(models.Model):
     )
     unblock_date = models.DateTimeField(
         blank=True,
-        null=True
+        null=True,
+        default=datetime.now
     )
     is_permanent_blocked = models.BooleanField(
         default=False

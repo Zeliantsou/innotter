@@ -10,7 +10,7 @@ class CreateSubscribeRequestSerializer(ModelSerializer):
         model = SubscribeRequest
         fields = (
             'id',
-            'desired',
+            'desired_page',
             'is_accept',
         )
 
@@ -21,7 +21,7 @@ class UpdateSubscribeRequestSerializer(ModelSerializer):
     class Meta:
         model = SubscribeRequest
         fields = (
-            'desired',
+            'desired_page',
             'is_accept',
         )
 
@@ -34,7 +34,7 @@ class RetrieveSubscribeRequestSerializer(ModelSerializer):
         fields = (
             'id',
             'initiator',
-            'desired',
+            'desired_page',
             'is_accept',
         )
 
@@ -47,6 +47,6 @@ class ListSubscribeRequestSerializer(ModelSerializer):
         fields = (
             'id',
             'initiator',
-            'desired',
+            'desired_page',
             'is_accept',
         )

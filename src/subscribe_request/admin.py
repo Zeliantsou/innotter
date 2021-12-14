@@ -7,7 +7,7 @@ class SubscribeRequestAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'initiator',
-        'desired',
+        'desired_page',
         'is_accept',
     )
 

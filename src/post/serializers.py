@@ -12,7 +12,7 @@ class CreatePostSerializer(ModelSerializer):
             'id',
             'page',
             'content',
-            'reply_to'
+            'reply_to',
         )
 
 
@@ -22,9 +22,8 @@ class UpdatePostSerializer(ModelSerializer):
     class Meta:
         model = Post
         fields = (
-            'page',
+            'id',
             'content',
-            'reply_to'
         )
 
 
@@ -43,7 +42,7 @@ class RetrievePostSerializer(ModelSerializer):
             'content',
             'reply_to',
             'created',
-            'updated'
+            'updated',
         )
 
 
@@ -60,5 +59,5 @@ class ListPostSerializer(ModelSerializer):
             'owner',
             'page',
             'content',
-            'reply_to'
+            'reply_to',
         )

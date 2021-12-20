@@ -10,8 +10,13 @@ class CreateLikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = (
             'id',
-            'post'
+            'post',
+            'owner',
         )
+
+        extra_kwargs = {
+            'owner': {'read_only': True},
+        }
 
 
 class UpdateLikeSerializer(serializers.ModelSerializer):
@@ -32,7 +37,7 @@ class RetrieveLikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = (
             'id',
-            'post'
+            'post',
         )
 
 
@@ -44,5 +49,5 @@ class ListLikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = (
             'id',
-            'post'
+            'post',
         )

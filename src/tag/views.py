@@ -7,12 +7,18 @@ from rest_framework.mixins import (
     ListModelMixin
 )
 
+from user.permissions import IsBlockedUser
 from tag.models import Tag
 from tag.serializers import (
     CreateTagSerializer,
     RetrieveTagSerializer,
     UpdateTagSerializer,
     ListTagSerializer
+)
+from tag.permissions import (
+    IsHavePage,
+    IsTagOwner,
+    IsBlockedPageWithTag,
 )
 
 
@@ -25,6 +31,14 @@ class TagViewSet(
     GenericViewSet
 ):
     queryset = Tag.objects.all()
+    permission_classes = {
+            'create': (IsBlockedUser, IsHavePage,),
+            'update': (IsBlockedUser, IsTagOwner, IsBlockedPageWithTag,),
+            'partial_update': (IsBlockedUser, IsTagOwner, IsBlockedPageWithTag,),
+            'retrieve': (IsBlockedUser,),
+            'list': (IsBlockedUser, IsTagOwner),
+            'destroy': (IsBlockedUser, IsTagOwner, IsBlockedPageWithTag,),
+    }
     serializer_classes = {
             'create': CreateTagSerializer,
             'update': UpdateTagSerializer,
@@ -40,3 +54,12 @@ class TagViewSet(
 
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action)
+
+    def get_permissions(self):
+        permission_classes = self.permission_classes.get(self.action)
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if self.action == 'list' and self.request.custom_user.role == 'user':
+            return Tag.objects.filter(owner=self.request.custom_user)
+        return self.queryset

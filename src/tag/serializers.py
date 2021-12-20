@@ -20,6 +20,7 @@ class UpdateTagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = (
+            'id',
             'name',
         )
 

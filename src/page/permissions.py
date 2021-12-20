@@ -66,10 +66,3 @@ class IsBlockedOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         print('2-block page owner', not obj.owner.is_blocked)
         return not obj.owner.is_blocked
-
-class IsBlockedUser(BasePermission):
-    """Check if the user is blocked"""
-
-    def has_permission(self, request, view):
-        print('1-block user', not request.custom_user.is_blocked)
-        return not request.custom_user.is_blocked

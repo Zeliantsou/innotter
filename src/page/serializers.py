@@ -5,13 +5,11 @@ from page.models import Page
 
 class CreatePageSerializer(serializers.ModelSerializer):
     """Serializes page for create view"""
-    # owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
 
     class Meta:
         model = Page
         fields = (
             'id',
-            # 'owner'
             'name',
             'description',
             'image',
@@ -34,7 +32,7 @@ class UpdatePageSerializer(serializers.ModelSerializer):
             'image',
             'is_private',
         )
-        read_only_fields = ('followers', 'subscriptions')
+        read_only_fields = ('tags', 'followers', 'subscriptions')
 
 
     # def get_tags(self, obj):
@@ -111,6 +109,22 @@ class DeleteFollowerSerializer(serializers.ModelSerializer):
         }
 
 
+class AddFreeSubscriptionsSerializer(serializers.ModelSerializer):
+    """Serializes page for add subscriptions view"""
+    list_user_ids_add_subscribe = serializers.ListSerializer(
+        child=serializers.IntegerField(),
+        required=False
+    )
+
+    class Meta:
+        model = Page
+        fields = ('id', 'subscriptions', 'list_user_ids_add_subscribe',)
+        extra_kwargs = {
+            'subscriptions': {'read_only': True},
+            'list_user_ids_add_subscribe': {'write_only': True},
+        }
+
+
 class DeleteSubscriptionsSerializer(serializers.ModelSerializer):
     """Serializes page for delete subscriptions view"""
     list_user_ids_refuse_subscribe = serializers.ListSerializer(
@@ -120,9 +134,27 @@ class DeleteSubscriptionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Page
-        fields = ('id', 'subscriptions', 'list_user_ids_refuse_subscribe',)
 
+        fields = ('id', 'subscriptions', 'list_user_ids_refuse_subscribe',)
         extra_kwargs = {
             'subscriptions': {'read_only': True},
             'list_user_ids_refuse_subscribe': {'write_only': True},
+        }
+
+
+class ActionTagSerializer(serializers.ModelSerializer):
+    """Serializes page for add tag view"""
+
+    list_tag_ids = serializers.ListSerializer(
+        child=serializers.IntegerField(),
+        required=False
+    )
+
+    class Meta:
+        model = Page
+
+        fields = ('id', 'tags', 'list_tag_ids',)
+        extra_kwargs = {
+            'tags': {'read_only': True},
+            'list_tag_ids': {'write_only': True},
         }

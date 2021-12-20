@@ -6,7 +6,7 @@ from subscribe_request.models import SubscribeRequest
 class SubscribeRequestAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'initiator',
+        'initiator_page',
         'desired_page',
         'is_accept',
     )

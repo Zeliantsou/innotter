@@ -6,8 +6,8 @@ from tag.models import Tag
 class TagAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'owner',
         'name',
+        'owner',
     )
 
 

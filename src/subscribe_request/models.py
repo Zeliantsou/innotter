@@ -2,17 +2,17 @@ from django.db import models
 
 
 class SubscribeRequest(models.Model):
-    initiator = models.ForeignKey(
-        'user.User',
+    initiator_page = models.ForeignKey(
+        'page.Page',
         on_delete=models.SET_NULL,
-        related_name='subscribe_requests',
+        related_name='initiator_requests',
         blank=True,
         null=True
     )
     desired_page = models.ForeignKey(
         'page.Page',
         on_delete=models.SET_NULL,
-        related_name='subscribe_requests',
+        related_name='desired_requests',
         blank=True,
         null=True
     )

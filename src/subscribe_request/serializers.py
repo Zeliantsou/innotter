@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, SlugRelatedField
+from rest_framework.serializers import ModelSerializer, ListSerializer, IntegerField
 
 from subscribe_request.models import SubscribeRequest
 
@@ -9,9 +9,8 @@ class CreateSubscribeRequestSerializer(ModelSerializer):
     class Meta:
         model = SubscribeRequest
         fields = (
-            'id',
+            'initiator_page',
             'desired_page',
-            'is_accept',
         )
 
 
@@ -21,7 +20,6 @@ class UpdateSubscribeRequestSerializer(ModelSerializer):
     class Meta:
         model = SubscribeRequest
         fields = (
-            'desired_page',
             'is_accept',
         )
 
@@ -50,3 +48,22 @@ class ListSubscribeRequestSerializer(ModelSerializer):
             'desired_page',
             'is_accept',
         )
+
+
+# class AcceptSeveralRequestsSerializer(ModelSerializer):
+#     """Serializes subscribe requests for accept view"""
+#     list_ids_accepted_requests = ListSerializer(
+#         child=IntegerField(),
+#         required=False,
+#     )
+#
+#     class Meta:
+#         model = SubscribeRequest
+#         fields = (
+#             'id',
+#             'is_accept',
+#         )
+#
+#     extra_kwargs = {
+#         'list_ids_accepted_requests': {'write_only': True},
+#     }

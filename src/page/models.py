@@ -1,6 +1,9 @@
+import pytz
 from datetime import datetime
 
 from django.db import models
+
+utc = pytz.UTC
 
 
 class Page(models.Model):
@@ -32,11 +35,11 @@ class Page(models.Model):
     )
     followers = models.ManyToManyField(
         'user.User',
-        related_name='followers_children'
+        related_name='follow_pages'
     )
     subscriptions = models.ManyToManyField(
         'user.User',
-        related_name='subscriptions_children'
+        related_name='subscribe_pages'
     )
     image = models.ImageField(
         upload_to='uploads/%Y/%m/%d/',
@@ -54,6 +57,11 @@ class Page(models.Model):
     is_permanent_blocked = models.BooleanField(
         default=False
     )
+
+    def check_temporary_block(self):
+        utc_now = datetime.utcnow().replace(tzinfo=utc)
+        utc_unblock_data = self.unblock_date.replace(tzinfo=utc)
+        return utc_now > utc_unblock_data
 
     def __str__(self):
         return self.name

@@ -1,7 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+
+import boto3
 
 from user.manager import CustomUserManager
+
+
+def verify_user_email(sender, instance, created, **kwargs):
+    if created:
+        ses = boto3.client('ses')
+        ses.verify_email_identity(EmailAddress=instance.email)
 
 
 class User(AbstractUser):
@@ -26,7 +35,7 @@ class User(AbstractUser):
     )
     photo_path = models.CharField(
         'photo',
-        max_length=100,
+        max_length=1000,
         blank=True,
         null=True,
     )
@@ -54,3 +63,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+post_save.connect(verify_user_email, sender=User)

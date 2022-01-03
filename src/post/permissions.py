@@ -5,7 +5,6 @@ class IsPageOwnerBlocked(BasePermission):
     """Checks if an owner of page is blocked"""
 
     def has_object_permission(self, request, view, obj):
-        print(obj.page.owner.is_blocked)
         return not obj.page.owner.is_blocked
 
 
@@ -20,7 +19,6 @@ class IsPostOwner(BasePermission):
     """Checks if user is an owner of post"""
 
     def has_object_permission(self, request, view, obj):
-        print('6 - post owner')
         return obj.owner == request.custom_user
 
 
@@ -28,7 +26,6 @@ class IsPagePrivate(BasePermission):
     """Checks if page with post is private"""
 
     def has_object_permission(self, request, view, obj):
-        print('4 - private')
         return not obj.page.is_private
 
 
@@ -36,7 +33,6 @@ class IsPageOwner(BasePermission):
     """Checks if user with post is an owner of page"""
 
     def has_object_permission(self, request, view, obj):
-        print('5 - page owner')
         return obj.page.owner == request.custom_user
 
 
@@ -44,7 +40,6 @@ class IsAdminForPost(BasePermission):
     """Checks if user is an admin"""
 
     def has_object_permission(self, request, view, obj):
-        print('7 - admin')
         return request.custom_user.role == 'admin'
 
 
@@ -52,7 +47,6 @@ class IsModeratorForPost(BasePermission):
     """Checks if user is a moderator"""
 
     def has_object_permission(self, request, view, obj):
-        print('8 - moderator')
         return request.custom_user.role == 'moderator'
 
 
@@ -60,5 +54,4 @@ class IsPageFollower(BasePermission):
     """Checks if user is a follower of page with post"""
 
     def has_object_permission(self, request, view, obj):
-        print('9 - follower')
         return request.custom_user in obj.page.followers.all()

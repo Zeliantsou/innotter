@@ -5,7 +5,6 @@ from django.urls import resolve
 
 from user.models import User
 from user.services.security_service import decode_token
-from user.views import UserViewSet
 
 
 class CustomAuthMiddleware:
@@ -29,4 +28,3 @@ class CustomAuthMiddleware:
         request.custom_user = user
         response = self.get_response(request)
         return response
-

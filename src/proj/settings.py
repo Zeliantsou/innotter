@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'django_filters',
+    'storages',
 
+    'celery_tasks',
     'like',
     'page',
     'post',
@@ -106,6 +109,32 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER')
+RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS')
+RABBITMQ_PORT_FIRST = os.environ.get('RABBITMQ_PORT_FIRST').split(':')[0]
+RABBITMQ_PORT_SECOND = os.environ.get('RABBITMQ_PORT_SECOND').split(':')[0]
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST')
+
+CELERY_BROKER_URL = 'amqp://' + RABBITMQ_DEFAULT_USER + ':' + RABBITMQ_DEFAULT_PASS + \
+                    '@' + RABBITMQ_HOST + ':' + RABBITMQ_PORT_FIRST + '/%2F'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'rpc://' + RABBITMQ_DEFAULT_USER + ':' + RABBITMQ_DEFAULT_PASS + \
+                    '@' + RABBITMQ_HOST + ':' + RABBITMQ_PORT_SECOND + '/%2F'
+CELERY_ACCEPT_CONTENT = ('application/json',)
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+SOURCE_EMAIL = os.environ.get('SOURCE_EMAIL')
+
+AWS_ACCESS_KEY_ID = os.environ.get('RABBITMQ_HOST')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+ALLOWED_FILE_EXTENSIONS = ('jpeg', 'jpg', )
 
 REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': (

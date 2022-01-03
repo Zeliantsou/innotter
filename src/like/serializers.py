@@ -13,7 +13,6 @@ class CreateLikeSerializer(serializers.ModelSerializer):
             'post',
             'owner',
         )
-
         extra_kwargs = {
             'owner': {'read_only': True},
         }

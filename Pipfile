@@ -12,6 +12,10 @@ PyJWT = "*"
 passlib = "*"
 pillow = "*"
 pytz = "*"
+celery = "*"
+boto3 = "*"
+django-filter = "*"
+django-storages = "*"
 
 [dev-packages]
 

@@ -2,7 +2,6 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.decorators import action
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import (
     CreateModelMixin,
@@ -13,6 +12,11 @@ from rest_framework.mixins import (
 )
 
 from user.permissions import IsBlockedUser
+from subscribe_request.services import (
+    accept_all_subscribe_requests,
+    create_subscribe_request,
+    update_subscribe_request,
+)
 from subscribe_request.models import SubscribeRequest
 from subscribe_request.serializers import (
     CreateSubscribeRequestSerializer,
@@ -38,7 +42,7 @@ class SubscribeRequestViewSet(
             'retrieve': (IsBlockedUser,),
             'list': (IsBlockedUser,),
             'destroy': (IsBlockedUser,),
-            'accept_all_subscribe_requests': (IsBlockedUser,),
+            'accept_subscribe_requests': (IsBlockedUser,),
     }
     serializer_classes = {
             'create': CreateSubscribeRequestSerializer,
@@ -49,32 +53,22 @@ class SubscribeRequestViewSet(
     }
 
     @action(detail=False, methods=('patch',))
-    def accept_all_subscribe_requests(self, request):
-        for subscribe_request in self.get_queryset():
-            subscribe_request.is_accept = True
-            subscribe_request.initiator_page.subscriptions.add(subscribe_request.desired_page.owner)
-            subscribe_request.desired_page.followers.add(subscribe_request.initiator_page.owner)
-            subscribe_request.save()
+    def accept_subscribe_requests(self, request):
+        accept_all_subscribe_requests(
+            queryset_subscribe_requests=self.get_queryset())
         return Response(status=HTTP_200_OK)
 
     def perform_create(self, serializer):
-        initiator_page = serializer.validated_data.get('initiator_page')
-        desired_page = serializer.validated_data.get('desired_page')
-        if initiator_page.owner != self.request.custom_user:
-            raise AuthenticationFailed()
-        if desired_page.is_private:
-            SubscribeRequest.objects.create(**serializer.validated_data)
-        else:
-            desired_page.followers.add(initiator_page.owner)
-            initiator_page.subscriptions.add(desired_page.owner)
+        create_subscribe_request(
+            current_user=self.request.custom_user,
+            validated_data=serializer.validated_data
+        )
 
     def perform_update(self, serializer):
-        current_subscribe_request = self.get_object()
-        initiator_page = current_subscribe_request.initiator_page
-        desired_page = current_subscribe_request.desired_page
-        if serializer.validated_data.get('is_accept'):
-            desired_page.followers.add(initiator_page.owner)
-            initiator_page.subscriptions.add(desired_page.owner)
+        update_subscribe_request(
+            current_subscribe_request=self.get_object(),
+            is_accept=serializer.validated_data.get('is_accepted')
+        )
         serializer.save()
 
     def get_queryset(self):
@@ -84,7 +78,7 @@ class SubscribeRequestViewSet(
                 Q(initiator_page__owner=self.request.custom_user) |
                 Q(desired_page__owner=self.request.custom_user)
             )
-        if self.action == 'accept_all_subscribe_requests' and user_role == 'user':
+        if self.action == 'accept_subscribe_requests' and user_role == 'user':
             return SubscribeRequest.objects.filter(
                 Q(desired_page__owner=self.request.custom_user) &
                 Q(is_accept=False)

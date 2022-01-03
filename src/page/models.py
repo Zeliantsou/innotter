@@ -1,9 +1,7 @@
-import pytz
+from pytz import UTC
 from datetime import datetime
 
 from django.db import models
-
-utc = pytz.UTC
 
 
 class Page(models.Model):
@@ -58,9 +56,9 @@ class Page(models.Model):
         default=False
     )
 
-    def check_temporary_block(self):
-        utc_now = datetime.utcnow().replace(tzinfo=utc)
-        utc_unblock_data = self.unblock_date.replace(tzinfo=utc)
+    def is_temporary_blocked(self):
+        utc_now = datetime.utcnow().replace(tzinfo=UTC)
+        utc_unblock_data = self.unblock_date.replace(tzinfo=UTC)
         return utc_now > utc_unblock_data
 
     def __str__(self):

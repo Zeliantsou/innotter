@@ -35,10 +35,6 @@ class UpdatePageSerializer(serializers.ModelSerializer):
         read_only_fields = ('tags', 'followers', 'subscriptions')
 
 
-    # def get_tags(self, obj):
-    #     return TagForPageSerializer(obj.owner.tags.all, many=True).data
-
-
 class RetrievePageSerializer(serializers.ModelSerializer):
     """Serializes page for retrieve view"""
     tags = serializers.SlugRelatedField(slug_field='name', many=True, read_only=True)
@@ -85,7 +81,6 @@ class TemporaryBlockDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
         fields = ('block_duration_days', 'unblock_date')
-
         extra_kwargs = {
             'block_duration_days': {'write_only': True},
             'unblock_date': {'read_only': True},
@@ -102,7 +97,6 @@ class DeleteFollowerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
         fields = ('id', 'followers', 'list_ids_removable_follower',)
-
         extra_kwargs = {
             'followers': {'read_only': True},
             'list_ids_removable_follower': {'write_only': True},
@@ -134,7 +128,6 @@ class DeleteSubscriptionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Page
-
         fields = ('id', 'subscriptions', 'list_user_ids_refuse_subscribe',)
         extra_kwargs = {
             'subscriptions': {'read_only': True},
@@ -152,7 +145,6 @@ class ActionTagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Page
-
         fields = ('id', 'tags', 'list_tag_ids',)
         extra_kwargs = {
             'tags': {'read_only': True},

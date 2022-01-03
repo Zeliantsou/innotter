@@ -45,7 +45,6 @@ class RetrieveUserSerializer(serializers.ModelSerializer):
             'title',
             'is_blocked',
             'role',
-
         )
 
 
@@ -61,7 +60,6 @@ class ListUserSerializer(serializers.ModelSerializer):
             'title',
             'is_blocked',
             'role',
-
         )
 
 

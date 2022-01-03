@@ -1,7 +1,4 @@
-from datetime import datetime, timedelta
-
-from django.db.models import Q
-from django.forms.models import model_to_dict
+from rest_framework.filters import SearchFilter
 from rest_framework.status import HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -15,8 +12,6 @@ from rest_framework.mixins import (
 )
 
 from user.permissions import IsBlockedUser
-from user.models import User
-from tag.models import Tag
 from page.permissions import (
     IsAdminForPage,
     IsModeratorForPage,
@@ -27,6 +22,15 @@ from page.permissions import (
     IsBlockedOwner,
 )
 from page.models import Page
+from page.services import (
+    permanent_block_or_unblock_page,
+    temporary_block_page,
+    add_tags_to_page,
+    remove_tags_from_page,
+    remove_followers_from_page,
+    add_free_subscriptions_to_page,
+    remove_subscriptions_from_page,
+)
 from page.serializers import (
     CreatePageSerializer,
     UpdatePageSerializer,
@@ -36,7 +40,7 @@ from page.serializers import (
     DeleteFollowerSerializer,
     AddFreeSubscriptionsSerializer,
     DeleteSubscriptionsSerializer,
-    ActionTagSerializer
+    ActionTagSerializer,
 )
 
 
@@ -48,12 +52,8 @@ class PageViewSet(CreateModelMixin,
                   GenericViewSet):
     """View set for page"""
     queryset = Page.objects.all()
-    # queryset = Page.objects.filter(
-    #     is_permanent_blocked=False).filter(
-    #     unblock_date__lt=datetime.now()).filter(
-    #     owner__is_blocked=False
-    # )
-    # queryset = Page.objects.exclude(is_permanent_blocked=True, unblock_date__gt=datetime.now(), owner__is_blocked=True)
+    filter_backends = (SearchFilter,)
+    search_fields = ('name', 'uuid', 'tags__name', 'owner__email')
     permission_classes = {
             'create': (IsBlockedUser,),
             'update': (IsBlockedUser, IsPageOwner, IsBlockedPage,),
@@ -86,116 +86,77 @@ class PageViewSet(CreateModelMixin,
 
     @action(detail=True, methods=('patch',))
     def permanent_block(self, request, pk=None):
-        page = self.get_object()
-        page.is_permanent_blocked = not page.is_permanent_blocked
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'email', 'unblock_date', 'is_permanent_blocked',))
-        )
+        page_data = permanent_block_or_unblock_page(self.get_object())
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch',))
     def temporary_block(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        block_days = timedelta(days=serializer.validated_data.get('block_duration_days'))
-        page.unblock_date = datetime.now() + block_days
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'email', 'unblock_date', 'is_permanent_blocked',))
+        page_data = temporary_block_page(
+            self.get_object(),
+            serializer.validated_data.get('block_duration_days')
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch',))
     def add_tag(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for tag in Tag.objects.filter(
-            id__in=set(serializer.validated_data.get('list_tag_ids'))).filter(
-            ~Q(id__in=[v['id'] for v in page.tags.all().values('id')])).filter(
-            owner=page.owner
-        ):
-            page.tags.add(tag)
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'email', 'unblock_date', 'is_permanent_blocked',))
+        page_data = add_tags_to_page(
+            page=self.get_object(),
+            set_added_tag_ids=set(serializer.validated_data.get('list_tag_ids'))
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch',))
     def delete_tag(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for tag in page.tags.filter(
-            id__in=set(serializer.validated_data.get('list_tag_ids'))).filter(
-            owner=page.owner
-        ):
-            page.tags.remove(tag)
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'email', 'unblock_date', 'is_permanent_blocked',))
+        page_data = remove_tags_from_page(
+            page=self.get_object(),
+            set_deleted_tag_ids=set(serializer.validated_data.get('list_tag_ids'))
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch',))
     def delete_follower(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for follower in page.followers.filter(id__in=set(serializer.validated_data.get('list_ids_removable_follower'))):
-            page.followers.remove(follower)
-            follower_pages = follower.pages.filter(subscriptions__id=request.custom_user.id)
-            for follower_page in follower_pages:
-                follower_page.subscriptions.remove(request.custom_user)
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'name',))
+        page_data = remove_followers_from_page(
+            page=self.get_object(),
+            set_deleted_follower_ids=set(
+                serializer.validated_data.get('list_ids_removable_follower')
+            )
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch', ))
     def add_free_subscriptions(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for desired_owner in User.objects.filter(
-            id__in=set(serializer.validated_data.get('list_user_ids_add_subscribe'))).filter(
-            ~Q(id__in=[v['id'] for v in page.subscriptions.all().values('id')])).filter(
-            pages__is_private=False
-        ):
-            page.subscriptions.add(desired_owner)
-            desired_owner.followers.add(request.custom_user)
-            desired_owner.save()
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'name',))
+        page_data = add_free_subscriptions_to_page(
+            page=self.get_object(),
+            set_user_ids_add_to_subscriptions=set(
+                serializer.validated_data.get('list_user_ids_add_subscribe')
+            )
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     @action(detail=True, methods=('patch',))
     def delete_subscriptions(self, request, pk=None):
-        page = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        for user in page.subscriptions.filter(
-                id__in=set(serializer.validated_data.get('list_user_ids_refuse_subscribe'))):
-            page.subscriptions.remove(user)
-            for subscription_page in user.pages.filter(followers__id=request.custom_user.id):
-                subscription_page.followers.remove(request.custom_user)
-                subscription_page.save()
-        page.save()
-        return Response(
-            status=HTTP_200_OK,
-            data=model_to_dict(page, fields=('id', 'name',))
+        page_data = remove_subscriptions_from_page(
+            page=self.get_object(),
+            set_user_ids_remove_from_subscriptions=set(
+                serializer.validated_data.get('list_user_ids_refuse_subscribe')
+            )
         )
+        return Response(status=HTTP_200_OK, data=page_data)
 
     def perform_create(self, serializer):
-        serializer.validated_data['owner'] = self.request.custom_user
-        page = Page.objects.create(**serializer.validated_data)
-        serializer.validated_data['id'] = page.id
+        Page.objects.create(owner=self.request.custom_user, **serializer.validated_data)
 
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action)

@@ -48,9 +48,7 @@ class TagViewSet(
     }
 
     def perform_create(self, serializer):
-        serializer.validated_data['owner'] = self.request.custom_user
-        tag = Tag.objects.create(**serializer.validated_data)
-        serializer.validated_data['id'] = tag.id
+        Tag.objects.create(owner=self.request.custom_user, **serializer.validated_data)
 
     def get_serializer_class(self):
         return self.serializer_classes.get(self.action)

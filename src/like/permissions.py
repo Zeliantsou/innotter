@@ -1,9 +1,4 @@
-from datetime import datetime
-import pytz
-
 from rest_framework.permissions import BasePermission
-
-utc = pytz.UTC
 
 
 class IsLikeOwner(BasePermission):
@@ -31,7 +26,4 @@ class IsBlockedPage(BasePermission):
     """Checks if page with post that has current like is blocked"""
 
     def has_object_permission(self, request, view, obj):
-        utc_unblock_datetime = obj.post.page.unblock_date.replace(tzinfo=utc)
-        utc_datetime_now = datetime.utcnow().replace(tzinfo=utc)
-        return not obj.post.page.is_permanent_blocked and utc_unblock_datetime < utc_datetime_now
-
+        return not obj.post.page.is_permanent_blocked and obj.post.page.is_temporary_blocked()

@@ -12,6 +12,7 @@ from rest_framework.mixins import (
 
 from user.permissions import IsBlockedUser
 from post.models import Post
+from post.services import create_post
 from post.serializers import (
     CreatePostSerializer,
     UpdatePostSerializer,
@@ -57,13 +58,10 @@ class PostViewSet(
     }
 
     def perform_create(self, serializer):
-        reply_to = serializer.validated_data.get('reply_to')
-        page = serializer.validated_data.get('page')
-        if reply_to and not reply_to.page.is_permanent_blocked and reply_to.page.check_temporary_block():
-            serializer.validated_data['page'] = reply_to.page
-            Post.objects.create(owner=self.request.custom_user, **serializer.validated_data)
-        if not reply_to and page and not page.is_permanent_blocked and page.check_temporary_block():
-            Post.objects.create(owner=self.request.custom_user, **serializer.validated_data)
+        create_post(
+            current_user=self.request.custom_user,
+            validated_data=serializer.validated_data
+        )
 
     def get_queryset(self):
         if self.action == 'list' and self.request.custom_user.role == 'user':

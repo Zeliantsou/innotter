@@ -1,9 +1,9 @@
-from rest_framework.serializers import ModelSerializer, SlugRelatedField
+from rest_framework import serializers
 
 from post.models import Post
 
 
-class CreatePostSerializer(ModelSerializer):
+class CreatePostSerializer(serializers.ModelSerializer):
     """Serializes post for create view"""
 
     class Meta:
@@ -16,7 +16,7 @@ class CreatePostSerializer(ModelSerializer):
         )
 
 
-class UpdatePostSerializer(ModelSerializer):
+class UpdatePostSerializer(serializers.ModelSerializer):
     """Serializes post for update view"""
 
     class Meta:
@@ -27,11 +27,11 @@ class UpdatePostSerializer(ModelSerializer):
         )
 
 
-class RetrievePostSerializer(ModelSerializer):
+class RetrievePostSerializer(serializers.ModelSerializer):
     """Serializes post for retrieve view"""
-    owner = SlugRelatedField(slug_field='email', read_only=True)
-    page = SlugRelatedField(slug_field='name', read_only=True)
-    reply_to = SlugRelatedField(slug_field='content', read_only=True)
+    owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
+    page = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    reply_to = serializers.SlugRelatedField(slug_field='content', read_only=True)
 
     class Meta:
         model = Post
@@ -46,11 +46,11 @@ class RetrievePostSerializer(ModelSerializer):
         )
 
 
-class ListPostSerializer(ModelSerializer):
+class ListPostSerializer(serializers.ModelSerializer):
     """Serializes post for list view"""
-    owner = SlugRelatedField(slug_field='email', read_only=True)
-    page = SlugRelatedField(slug_field='name', read_only=True)
-    reply_to = SlugRelatedField(slug_field='content', read_only=True)
+    owner = serializers.SlugRelatedField(slug_field='email', read_only=True)
+    page = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    reply_to = serializers.SlugRelatedField(slug_field='content', read_only=True)
 
     class Meta:
         model = Post

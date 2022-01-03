@@ -1,9 +1,9 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from tag.models import Tag
 
 
-class CreateTagSerializer(ModelSerializer):
+class CreateTagSerializer(serializers.ModelSerializer):
     """Serializes tag for create view"""
 
     class Meta:
@@ -14,7 +14,7 @@ class CreateTagSerializer(ModelSerializer):
         )
 
 
-class UpdateTagSerializer(ModelSerializer):
+class UpdateTagSerializer(serializers.ModelSerializer):
     """Serializes tag for update view"""
 
     class Meta:
@@ -25,7 +25,7 @@ class UpdateTagSerializer(ModelSerializer):
         )
 
 
-class RetrieveTagSerializer(ModelSerializer):
+class RetrieveTagSerializer(serializers.ModelSerializer):
     """Serializes tag for retrieve view"""
 
     class Meta:
@@ -37,7 +37,7 @@ class RetrieveTagSerializer(ModelSerializer):
         )
 
 
-class ListTagSerializer(ModelSerializer):
+class ListTagSerializer(serializers.ModelSerializer):
     """Serializes tag for list view"""
 
     class Meta:

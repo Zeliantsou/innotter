@@ -4,9 +4,18 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+Django = "*"
 djangorestframework = "*"
 psycopg2-binary = "*"
+python-dotenv = "*"
+PyJWT = "*"
+passlib = "*"
+pillow = "*"
+pytz = "*"
+celery = "*"
+boto3 = "*"
+django-filter = "*"
+django-storages = "*"
 
 [dev-packages]
 

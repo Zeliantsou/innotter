@@ -1,6 +1,17 @@
 version: "3.3"
    
 services:
+
+  rabbit:
+    hostname: ${RABBITMQ_HOST}
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - ${RABBITMQ_PORT_FIRST}
+      - ${RABBITMQ_PORT_SECOND}
+
   db:
     image: postgres
     volumes:
@@ -9,11 +20,25 @@ services:
       - POSTGRES_DB=${DJANGO_DATABASE_NAME}
       - POSTGRES_USER=${DJANGO_DATABASE_USER}
       - POSTGRES_PASSWORD=${DJANGO_DATABASE_PASSWORD}
+
   web:
     build: .
+    command: sh ./entrypoint.sh
     volumes:
       - .:/code
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - rabbit
+
+  celery:
+    restart: always
+    build: .
+    command: sh ./entrypoint_celery.sh
+    volumes:
+      - .:/code
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbit

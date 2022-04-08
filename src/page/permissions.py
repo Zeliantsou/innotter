@@ -19,18 +19,14 @@ class IsPageOwner(BasePermission):
     """Checks if the user is an owner of certain page"""
 
     def has_object_permission(self, request, view, obj):
-        if obj.owner == request.custom_user:
-            return True
-        return False
+        return obj.owner == request.custom_user
 
 
 class IsFollower(BasePermission):
     """Checks if the user is a follower of certain page"""
 
     def has_object_permission(self, request, view, obj):
-        if obj.is_private and request.custom_user in obj.followers.all():
-            return True
-        return False
+        return obj.is_private and request.custom_user in obj.followers.all()
 
 
 class IsPublicPage(BasePermission):

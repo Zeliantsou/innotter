@@ -60,7 +60,9 @@ class PostViewSet(
     def perform_create(self, serializer):
         create_post(
             current_user=self.request.custom_user,
-            validated_data=serializer.validated_data
+            page=serializer.validated_data.get('page'),
+            content=serializer.validated_data.get('content'),
+            reply_to=serializer.validated_data.get('reply_to')
         )
 
     def get_queryset(self):

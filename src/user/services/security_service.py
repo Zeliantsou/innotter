@@ -42,7 +42,8 @@ def decode_token(token: bytes) -> dict:
 
 def check_expiration_date(exp_date: Union[str, datetime]) -> bool:
     if isinstance(exp_date, str):
-        exp_date = datetime.strptime(exp_date, settings.FORMAT_STRING_FROM_TIME)
+        exp_date = datetime.strptime(
+            exp_date, settings.FORMAT_STRING_FROM_TIME)
     return exp_date > datetime.now()
 
 

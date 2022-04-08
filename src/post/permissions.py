@@ -12,7 +12,8 @@ class IsPageBlocked(BasePermission):
     """Checks if page is blocked"""
 
     def has_object_permission(self, request, view, obj):
-        return not obj.page.is_permanent_blocked and obj.page.check_temporary_block()
+        return not obj.page.is_permanent_blocked and \
+               obj.page.check_temporary_block()
 
 
 class IsPostOwner(BasePermission):

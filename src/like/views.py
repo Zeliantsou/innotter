@@ -48,7 +48,7 @@ class LikeViewSet(
     def perform_create(self, serializer):
         create_like(
             current_user=self.request.custom_user,
-            validated_data=serializer.validated_data
+            liked_post=serializer.validated_data.get('post')
         )
 
     def get_serializer_class(self):

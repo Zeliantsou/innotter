@@ -61,12 +61,15 @@ class SubscribeRequestViewSet(
     def perform_create(self, serializer):
         create_subscribe_request(
             current_user=self.request.custom_user,
-            validated_data=serializer.validated_data
+            initiator_page=serializer.validated_data.get('initiator_page'),
+            desired_page=serializer.validated_data.get('desired_page')
         )
 
     def perform_update(self, serializer):
+        updating_page = self.get_object()
         update_subscribe_request(
-            current_subscribe_request=self.get_object(),
+            initiator_page=updating_page.initiator_page,
+            desired_page=updating_page.desired_page,
             is_accept=serializer.validated_data.get('is_accepted')
         )
         serializer.save()

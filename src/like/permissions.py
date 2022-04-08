@@ -26,4 +26,5 @@ class IsBlockedPage(BasePermission):
     """Checks if page with post that has current like is blocked"""
 
     def has_object_permission(self, request, view, obj):
-        return not obj.post.page.is_permanent_blocked and obj.post.page.is_temporary_blocked()
+        return not obj.post.page.is_permanent_blocked and \
+               obj.post.page.is_temporary_blocked()
